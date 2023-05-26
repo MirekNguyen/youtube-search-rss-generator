@@ -50,7 +50,7 @@ sorted_videos = sorted(
 )
 
 fg = FeedGenerator()
-fg.id("https://mirekng.com/")
+fg.id("https://mirekng.com/rss/" + sys.argv[len(sys.argv) - 1])
 fg.title("Youtube subscriptions feed")
 fg.subtitle("Youtube subscriptions feed")
 fg.link(href="https://mirekng.com", rel="self")

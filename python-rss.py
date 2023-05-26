@@ -31,7 +31,7 @@ def parse_published_date(published_date):
         return datetime.now() - timedelta(days=days_ago)
     elif "week" in published_date:
         weeks_ago = int(published_date.split()[0])
-        return datetime.now() - timedelta(weeks=weeks_ago * 7)
+        return datetime.now() - timedelta(days=weeks_ago * 7)
     elif "month" in published_date:
         months_ago = int(published_date.split()[0])
         # Assuming 30 days in a month

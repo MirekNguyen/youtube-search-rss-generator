@@ -15,6 +15,7 @@ parser.add_argument("-q", "--query", action="store", help="Query (required)")
 parser.add_argument(
     "-o", "--output", action="store", help="Output file path (required)"
 )
+parser.add_argument("-c", "--channel", action="store_true", help="Search videos of specific channel")
 args = parser.parse_args()
 
 if not args.query or not args.output:
@@ -61,6 +62,8 @@ fg.link(href="https://mirekng.com", rel="self")
 fg.language("en")
 
 for video in sorted_videos:
+    if args.channel and not video['channel']['name'].lower() == args.query.lower():
+        continue
     pubDate = parse_published_date(video["publishedTime"])
     if (pubDate < (datetime.now() - timedelta(days=7))):
         continue

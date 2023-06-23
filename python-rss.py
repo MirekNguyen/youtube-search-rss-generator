@@ -12,6 +12,7 @@ timezone = pytz.timezone("Europe/Prague")
 parser = argparse.ArgumentParser(description="Generate RSS for Youtube query")
 
 parser.add_argument("-q", "--query", action="store", help="Query (required)")
+parser.add_argument("-s", "--shorts", action="store_true", help="Include Youtube shorts")
 parser.add_argument(
     "-o", "--output", action="store", help="Output file path (required)"
 )
@@ -48,6 +49,15 @@ def parse_published_date(published_date):
     else:
         return datetime.now()  # Return current datetime for unknown formats
 
+def is_less_than_minute(duration):
+    try:
+        minutes, seconds = map(int, duration.split(":"))
+        total_seconds = minutes * 60 + seconds
+        return total_seconds <= 60
+    except ValueError:
+        return False
+
+
 
 sorted_videos = sorted(
     object["result"],
@@ -66,6 +76,8 @@ for video in sorted_videos:
         continue
     pubDate = parse_published_date(video["publishedTime"])
     if (pubDate < (datetime.now() - timedelta(days=7))):
+        continue
+    if (not args.shorts and is_less_than_minute(video['duration'])):
         continue
     fe = fg.add_entry()
     fe.id(video["link"])

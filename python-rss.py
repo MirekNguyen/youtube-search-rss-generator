@@ -61,11 +61,13 @@ fg.link(href="https://mirekng.com", rel="self")
 fg.language("en")
 
 for video in sorted_videos:
+    pubDate = parse_published_date(video["publishedTime"])
+    if (pubDate < (datetime.now() - timedelta(days=7))):
+        continue
     fe = fg.add_entry()
     fe.id(video["link"])
     fe.title(video["publishedTime"] + " | " + video["title"])
     fe.link(href=video["link"], replace=True)
-    pubDate = parse_published_date(video["publishedTime"])
     fe.description(
         video["link"]
         + "<br>"

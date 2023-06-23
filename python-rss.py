@@ -1,4 +1,6 @@
+import argparse
 import json
+import re
 import sys
 from datetime import datetime, timedelta
 
@@ -6,20 +8,22 @@ import pytz
 from feedgen.feed import FeedGenerator
 from youtubesearchpython import ResultMode, VideosSearch
 
-if len(sys.argv) < 2:
+timezone = pytz.timezone("Europe/Prague")
+parser = argparse.ArgumentParser(description="Generate RSS for Youtube query")
+
+parser.add_argument("-q", "--query", action="store", help="Query (required)")
+parser.add_argument(
+    "-o", "--output", action="store", help="Output file path (required)"
+)
+args = parser.parse_args()
+
+if not args.query or not args.output:
     print("No output file or search query provided.")
     exit(1)
-elif len(sys.argv) == 2:
-    query = input("Search Youtube: ")
-elif len(sys.argv) == 3:
-    query = sys.argv[1]
-else:
-    print("Too many arguments")
-    exit(1)
 
-timezone = pytz.timezone("Europe/Prague")
+customSearch = VideosSearch(args.query, limit=10)
 
-customSearch = VideosSearch(query, limit=5)
+
 result = customSearch.result(mode=ResultMode.json)
 object = json.loads(result)
 
@@ -27,18 +31,18 @@ object = json.loads(result)
 # Function to parse relative publishedDate to datetime
 def parse_published_date(published_date):
     if "day" in published_date:
-        days_ago = int(published_date.split()[0])
+        days_ago = int(re.search(r"\d+", published_date).group())
         return datetime.now() - timedelta(days=days_ago)
     elif "week" in published_date:
-        weeks_ago = int(published_date.split()[0])
+        weeks_ago = int(re.search(r"\d+", published_date).group())
         return datetime.now() - timedelta(days=weeks_ago * 7)
     elif "month" in published_date:
-        months_ago = int(published_date.split()[0])
         # Assuming 30 days in a month
+        months_ago = int(re.search(r"\d+", published_date).group())
         return datetime.now() - timedelta(days=months_ago * 30)
     elif "year" in published_date:
         # Assuming 365 days in a year
-        years_ago = int(published_date.split()[0])
+        years_ago = int(re.search(r"\d+", published_date).group())
         return datetime.now() - timedelta(days=years_ago * 365)
     else:
         return datetime.now()  # Return current datetime for unknown formats
